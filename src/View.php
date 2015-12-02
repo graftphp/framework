@@ -13,7 +13,7 @@ class View
         $path = GRAFT_CONFIG['ViewPath'] . str_replace('.', '\\', $template) . '.php';
 
         if (!file_exists($path)) {
-            dd('Template not found');
+            dd("Template ($template) not found");
         }
 
         ob_start();
