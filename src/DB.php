@@ -37,6 +37,12 @@ class DB
             {$idcolumn} INT NOT NULL AUTO_INCREMENT PRIMARY KEY);");
     }
 
+    public static function delete($table, $column, $val)
+    {
+        $db = new static;
+        $db->execute("DELETE FROM " . $table . " WHERE " . $column . " = " . $val);
+    }
+
     /*
     Execute a raw SQL query + optional named parameter array
     */
@@ -53,12 +59,12 @@ class DB
         }
     }
 
-    public function get($cols = null)
+    public function get($cols = null, $sortcol = null, $sortdir = null)
     {
         if (isset($cols)) {
             if (is_array($cols)) {
                 $this->cols = "`" . implode("`,`", $cols) . "`";
-            } else {
+            } elseif ($cols != '*') {
                 dd('Columns should be an array');
             }
         }
@@ -67,8 +73,19 @@ class DB
 
         $this->run();
 
-        if ($this->query->rowCount() > 0) {
-            return $this->query->fetchAll(\PDO::FETCH_ASSOC);
+        if ($this->query->rowCount() > 1) {
+            $data = $this->query->fetchAll(\PDO::FETCH_ASSOC);
+            if ($sortcol && $sortdir) {
+                uasort($data, function($a, $b) use ($sortcol,$sortdir) {
+                    switch (strtoupper($sortdir)) {
+                        case "DESC": return $a[$sortcol] < $b[$sortcol];
+                        case "ASC" : return $a[$sortcol] > $b[$sortcol];
+                    }
+                });
+            }
+            return $data;
+        } elseif ($this->query->rowCount() > 0) {
+            return $this->query->fetchAll(\PDO::FETCH_ASSOC)[0];
         } else {
             return false;
         }
@@ -103,7 +120,6 @@ class DB
     {
         return $this->get()[0];
     }
-
 
     public function setColumns($tablename, $columns)
     {
