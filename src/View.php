@@ -31,15 +31,16 @@ class View
             // replace template regions with content from the child view
             preg_match_all("/\{(.*)\}/", $template_contents, $regions);
             foreach ($regions[1] as $region) {
-                // replace any regions with rendered content
-                $templatepattern = "/\{$region\}/";
-                $viewpattern = "/(?<=\{$region\})(.|\n)+(?=\{\/$region\})/";
-                preg_match($viewpattern, $view_contents, $regmatch);
-                if (isset($regmatch[0])) {
-                    $template_contents = preg_replace($templatepattern, $regmatch[0], $template_contents);
-                } else {
-                    $template_contents = preg_replace($templatepattern, "", $template_contents);
+                $start = '{' . $region . '}';
+                $end = "{/$region}";
+                $startpos = strpos($view_contents, $start);
+                $endpos = strpos($view_contents, $end);
+                $chunk = '';
+                if ($startpos && $endpos) {
+                    $startpos = $startpos+strlen($start)+1;
+                    $chunk = substr($view_contents, $startpos, $endpos - $startpos);
                 }
+                $template_contents = str_replace($start, $chunk, $template_contents);
             }            
             $view_contents = $template_contents;
         }
