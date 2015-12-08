@@ -116,9 +116,9 @@ class DB
         $this->query->execute($this->params);
     }
 
-    public function first()
+    public function first($cols = null, $sortcol = null, $sortdir = null)
     {
-        return $this->get()[0];
+        return $this->get($cols, $sortcol, $sortdir)[0];
     }
 
     public function setColumns($tablename, $columns)

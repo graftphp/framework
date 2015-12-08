@@ -44,6 +44,13 @@ class Model
         return $obj;
     }
 
+    static public function first()
+    {
+        $db = new DB();
+        return $db->table(static::$db_tablename)
+            ->first('*', static::$db_idcolumn, 'DESC');
+    }
+
     public function sort($column,$direction)
     {
         dd($column);

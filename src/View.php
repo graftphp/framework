@@ -20,6 +20,18 @@ class View
         include $path;
         $view_contents = ob_get_clean();
 
+        // check for and insert any embed content
+        preg_match_all("/\{embed:(.*)\}/", $view_contents, $embed_tags);
+        if (count($embed_tags[0]) > 0) {
+            foreach($embed_tags[0] as $index => $embed) {
+                $embed_path = GRAFT_CONFIG['ViewPath'] . str_replace('.','\\',$embed_tags[1][$index]) . '.php';
+                ob_start();
+                include($embed_path);
+                $embed_contents = ob_get_clean();
+                $view_contents = str_replace($embed, $embed_contents, $view_contents);
+            }
+        } 
+
         // check for a template tag, we will only use the first one
         preg_match_all("/\{template:(.*)\}/", $view_contents, $template_tag);
         if(count($template_tag[0]) > 0) {
