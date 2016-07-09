@@ -59,6 +59,17 @@ class DB
         }
     }
 
+    public function first($cols = null, $sortcol = null, $sortdir = null)
+    {
+        $first = $this->get($cols, $sortcol, $sortdir);
+
+        if ($first) {
+            return $first[0];
+        } else {
+            return false;
+        }
+    }
+
     public function get($cols = null, $sortcol = null, $sortdir = null)
     {
         if (isset($cols)) {
@@ -73,7 +84,7 @@ class DB
 
         $this->run();
 
-        if ($this->query->rowCount() > 1) {
+        if ($this->query->rowCount() > 0) {
             $data = $this->query->fetchAll(\PDO::FETCH_ASSOC);
             if ($sortcol && $sortdir) {
                 uasort($data, function($a, $b) use ($sortcol,$sortdir) {
@@ -84,8 +95,6 @@ class DB
                 });
             }
             return $data;
-        } elseif ($this->query->rowCount() > 0) {
-            return $this->query->fetchAll(\PDO::FETCH_ASSOC)[0];
         } else {
             return false;
         }
@@ -114,11 +123,6 @@ class DB
     {
         $this->query = $this->db->prepare($this->sql);
         $this->query->execute($this->params);
-    }
-
-    public function first($cols = null, $sortcol = null, $sortdir = null)
-    {
-        return $this->get($cols, $sortcol, $sortdir)[0];
     }
 
     public function setColumns($tablename, $columns)

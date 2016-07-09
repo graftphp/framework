@@ -5,12 +5,14 @@ namespace GraftPHP\Framework;
 class View
 {
 
-    public static function render($template, $vars = null) {
+    public static function render($template, $vars = null, $viewpath = null) 
+    {
         if ($vars) {
             extract($vars);
         }
 
-        $path = GRAFT_CONFIG['ViewPath'] . str_replace('.', '\\', $template) . '.php';
+        $thisViewPath = $viewpath ? $viewpath : GRAFT_CONFIG['ViewPath'];
+        $path = $thisViewPath . str_replace('.', '/', $template) . '.php';
 
         if (!file_exists($path)) {
             dd("Template ($template) not found");
@@ -24,7 +26,7 @@ class View
         preg_match_all("/\{embed:(.*)\}/", $view_contents, $embed_tags);
         if (count($embed_tags[0]) > 0) {
             foreach($embed_tags[0] as $index => $embed) {
-                $embed_path = GRAFT_CONFIG['ViewPath'] . str_replace('.','\\',$embed_tags[1][$index]) . '.php';
+                $embed_path = $thisViewPath . str_replace('.','/',$embed_tags[1][$index]) . '.php';
                 ob_start();
                 include($embed_path);
                 $embed_contents = ob_get_clean();
@@ -35,7 +37,7 @@ class View
         // check for a template tag, we will only use the first one
         preg_match_all("/\{template:(.*)\}/", $view_contents, $template_tag);
         if(count($template_tag[0]) > 0) {
-            $template_path = GRAFT_CONFIG['ViewPath'] . str_replace('.','\\', $template_tag[1][0]) . '.php';
+            $template_path = $thisViewPath . str_replace('.','/', $template_tag[1][0]) . '.php';
             ob_start();
             include $template_path;
             $template_contents = ob_get_clean();

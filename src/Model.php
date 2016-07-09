@@ -5,24 +5,42 @@ namespace GraftPHP\Framework;
 class Model
 {
 
-    public function __construct()
-    {
-        $this->updateTable();
-    }
-
     static public function all($sortcol = null, $sortdir = null)
     {
+        $obj = new static;
+        $obj->build();
         $db = new DB();
         return $db->table(static::$db_tablename)
             ->get('*', $sortcol, $sortdir);
+    }
+
+    static public function build() {
+        $obj = new static;
+        $obj->updateTable();
+        $obj->defaultData();
+    }
+
+    public function defaultData()
+    {
+        return true;
+        if (isset(static::$db_defaultdata)) {
+            foreach(static::$db_defaultdata as $k => $d) {
+                $obj = new static;
+                $obj->{static::$db_idcolumn} = ($k+1);
+                foreach(static::$db_columns as $ci => $c) {
+                    $obj->{$c[0]} = $d[$ci];
+                }
+                $obj->save();
+            }
+        }
     }
 
     public function delete()
     {
         if ($this->{static::$db_idcolumn}) {
             DB::delete(
-                static::$db_tablename, 
-                static::$db_idcolumn, 
+                static::$db_tablename,
+                static::$db_idcolumn,
                 $this->{static::$db_idcolumn}
             );
         } else {
@@ -30,12 +48,14 @@ class Model
         }
     }
 
-    static public function find($id)
+    // find and return a single instance of the object
+    static public function find($val, $column = null)
     {
+        $col = $column ? $column : static::$db_idcolumn;
         $db = new DB();
         $res = $db->table(static::$db_tablename)
-            ->where(static::$db_idcolumn, '=', $id)
-            ->get();
+            ->where($col, '=', $val)
+            ->first();
         $obj = new static;
         $obj->{static::$db_idcolumn} = $res[static::$db_idcolumn];
         foreach(static::$db_columns as $col) {

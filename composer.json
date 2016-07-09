@@ -1,0 +1,12 @@
+{
+    "name":"graftphp/framework",
+    "description":"graft php framework",
+    "keywords": ["framework", "php"],
+    "homepage": "https://github.com/graftphp/framework",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "GraftPHP\\Framework\\": "src/"
+        }
+    }
+}
