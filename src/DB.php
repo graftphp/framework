@@ -64,7 +64,7 @@ class DB
         $first = $this->get($cols, $sortcol, $sortdir);
 
         if ($first) {
-            return $first[0];
+            return (object) reset($first);
         } else {
             return false;
         }
@@ -81,11 +81,10 @@ class DB
         }
         $this->sql = "SELECT " . $this->cols . "
             FROM `" . $this->table . "`" . $this->where;
-
         $this->run();
 
         if ($this->query->rowCount() > 0) {
-            $data = $this->query->fetchAll(\PDO::FETCH_ASSOC);
+            $data = $this->query->fetchAll(\PDO::FETCH_OBJ);
             if ($sortcol && $sortdir) {
                 uasort($data, function($a, $b) use ($sortcol,$sortdir) {
                     switch (strtoupper($sortdir)) {
@@ -94,7 +93,7 @@ class DB
                     }
                 });
             }
-            return $data;
+            return (object) $data;
         } else {
             return false;
         }
