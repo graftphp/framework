@@ -22,15 +22,16 @@ class Model
 
     public function defaultData()
     {
-        return true;
         if (isset(static::$db_defaultdata)) {
             foreach(static::$db_defaultdata as $k => $d) {
                 $obj = new static;
-                $obj->{static::$db_idcolumn} = ($k+1);
-                foreach(static::$db_columns as $ci => $c) {
-                    $obj->{$c[0]} = $d[$ci];
+                if (!$obj->find($d[0])) {
+                    $obj->{static::$db_idcolumn} = $d[0];
+                    foreach(static::$db_columns as $ci => $c) {
+                        $obj->{$c[0]} = $d[$ci+1];
+                    }
+                    $obj->save();
                 }
-                $obj->save();
             }
         }
     }
@@ -56,12 +57,16 @@ class Model
         $res = $db->table(static::$db_tablename)
             ->where($col, '=', $val)
             ->first();
-        $obj = new static;
-        $obj->{static::$db_idcolumn} = $res[static::$db_idcolumn];
-        foreach(static::$db_columns as $col) {
-            $obj->{$col[0]} = $res[$col[0]];
+        if ($res) {
+            $obj = new static;
+            $obj->{static::$db_idcolumn} = $res->{static::$db_idcolumn};
+            foreach(static::$db_columns as $col) {
+                $obj->{$col[0]} = $res->{$col[0]};
+            }
+            return $obj;
+        } else {
+            return false;
         }
-        return $obj;
     }
 
     static public function first()
