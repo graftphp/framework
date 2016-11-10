@@ -26,7 +26,7 @@ class Framework
         if (is_array(GRAFT_VENDOR_SETTINGS)) {
             foreach(GRAFT_VENDOR_SETTINGS as $vs) {
                 $obj = new $vs;
-                $routes = array_merge($routes, $obj->routes);
+                $routes = array_merge($obj->routes, $routes);
                 unset($obj);
             }
         }
