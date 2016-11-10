@@ -76,11 +76,6 @@ class Model
             ->first('*', static::$db_idcolumn, 'DESC');
     }
 
-    public function sort($column,$direction)
-    {
-        dd($column);
-    }
-
     public function save()
     {
         $cols = [];
