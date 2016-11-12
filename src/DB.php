@@ -102,19 +102,19 @@ class DB
     public function save($idcol, $cols, $vals)
     {
         $sql = '';
-        if (array_search($idcol, $cols)) {
-            // id column present, perform update
-            $sql = 'REPLACE';
-        } else {
+        if (array_search($idcol, $cols) === false) {
             // no id column, perform insert
             $sql = 'INSERT';
+        } else {
+            // id column present, perform replace to update the row
+            $sql = 'REPLACE';
         }
         $sql .= ' INTO `' . $this->table . '` (`';
         $sql .= implode('`,`', $cols);
         $sql .= '`) VALUES (:';
         $sql .= implode(',:', $cols);
         $sql .= ');';
-        
+
         $this->execute($sql, $vals);
     }
 
@@ -148,7 +148,7 @@ class DB
         $this->where .= " AND `$column` $operator :p" . count($this->params);
         $this->params['p'.count($this->params)] = $value;
 
-        return $this;        
+        return $this;
     }
 
 }

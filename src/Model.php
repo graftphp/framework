@@ -83,6 +83,10 @@ class Model
         $db = new DB();
         $db->table(static::$db_tablename);
 
+        if (isset($this->{static::$db_idcolumn})) {
+            $cols[] = static::$db_idcolumn;
+            $vals[static::$db_idcolumn] = $this->{static::$db_idcolumn};
+        }
         foreach(static::$db_columns as $c) {
             if (isset($this->{$c[0]})) {
                 $cols[] = $c[0];
