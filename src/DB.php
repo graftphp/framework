@@ -5,6 +5,8 @@ namespace GraftPHP\Framework;
 class DB
 {
 
+    use MagicCall;
+
     private $cols = '*';
     private $orderSQL = '';
     private $params = [];
@@ -23,39 +25,6 @@ class DB
         } catch (PDOException $e) {
             die($e->getMessage());
         }
-    }
-
-    public function __call($method, $args) {
-        switch ($method) {
-            case 'orderBy' :
-                return $this->orderBy_func(...$args);
-                break;
-            case 'table' :
-                return $this->table_func(...$args);
-                break;
-            case 'where' :
-                return $this->where_func(...$args);
-                break;
-        }
-        die($method . ' method not found');
-    }
-
-    static public function __callStatic($method, $args) {
-        switch ($method) {
-            case 'orderBy' :
-                $o = new static();
-                return $o->orderBy_func(...$args);
-                break;
-            case 'table' :
-                $o = new static();
-                return $o->table_func(...$args);
-                break;
-            case 'where' :
-                $o = new static();
-                return $o->where_func(...$args);
-                break;
-        }
-        die($method . ' method not found');
     }
 
     private function columnExists($tablename, $column)
@@ -137,7 +106,7 @@ class DB
         $db->run();
     }
 
-    public function orderBy_func($sortcol, $sortdir = null) 
+    public function orderBy_func($sortcol, $sortdir = null)
     {
         if (empty($this->orderSQL)) {
             $this->orderSQL = ' ORDER BY ' . $sortcol . ' ';
