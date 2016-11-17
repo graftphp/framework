@@ -11,11 +11,11 @@ class Model extends DB
         $obj->build();
         $db = new DB();
         $res = $db->table(static::$db_tablename)
-            ->get(['id'], $sortcol, $sortdir);
+            ->get([static::$db_idcolumn], $sortcol, $sortdir);
 
         $out = new Data();
         foreach($res as $row) {
-            $out->append( static::find($row->id) );
+            $out->append( static::find($row->{static::$db_idcolumn}) );
         }
         return $out;
     }
@@ -84,7 +84,12 @@ class Model extends DB
         if (empty($this->table)) {
             $this->table = static::$db_tablename;
         }
-        return parent::get($cols);
+        $res = parent::get($cols);
+        $out = new Data();
+        foreach($res as $row) {
+            $out->append( static::find($row->{static::$db_idcolumn}) );
+        }
+        return $out;
     }
 
     public function save()
