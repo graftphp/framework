@@ -35,7 +35,7 @@ class Framework
         foreach ($routes as $route) {
             $pattern = '|^' . str_replace('{}', '(.+)', $route[0]) . '$|';
             preg_match($pattern, $path, $result);
-        
+
             if (count($result) > 0) {
                 array_shift($result);
                 $obj = new $route[1];
