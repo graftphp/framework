@@ -43,11 +43,11 @@ class Model extends DB
     }
 
     // delete the current instance of this object
-    public function delete()
+    public function delete_func($id = null)
     {
         $db = new DB();
         $db->table(static::$db_tablename)
-            ->where(static::$db_idcolumn, '=', $this->{static::$db_idcolumn})
+            ->where(static::$db_idcolumn, '=', isset($id) ? $id : $this->{static::$db_idcolumn})
             ->delete();
     }
 

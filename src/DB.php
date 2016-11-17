@@ -48,8 +48,11 @@ class DB
     /*
     Delete records based on table and query settings
     */
-    public function delete()
+    public function delete_func()
     {
+        if (empty($this->table) || empty($this->where)) {
+            dd('Table and Where required for delete');
+        }
         $this->sql = 'DELETE FROM `' . $this->table . '`' . $this->where;
         $this->run();
     }
