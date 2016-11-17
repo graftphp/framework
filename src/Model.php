@@ -79,6 +79,14 @@ class Model extends DB
         }
     }
 
+    public function get($cols = null)
+    {
+        if (empty($this->table)) {
+            $this->table = static::$db_tablename;
+        }
+        return parent::get($cols);
+    }
+
     public function save()
     {
         $cols = [];

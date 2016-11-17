@@ -11,8 +11,9 @@ class DB
     private $orderSQL = '';
     private $params = [];
     private $sql = '';
-    private $table = '';
     private $where = ' WHERE 1 ';
+
+    protected $table = '';
 
     public function __construct()
     {
