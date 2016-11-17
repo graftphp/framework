@@ -67,12 +67,11 @@ class Model extends DB
             ->where($col, '=', $val)
             ->get();
 
-        if ($res) {
-            $res = reset($res);
+        if ($res->count() > 0) {
             $obj = new static;
-            $obj->{static::$db_idcolumn} = $res->{static::$db_idcolumn};
+            $obj->{static::$db_idcolumn} = $res->first()->{static::$db_idcolumn};
             foreach(static::$db_columns as $col) {
-                $obj->{$col[0]} = $res->{$col[0]};
+                $obj->{$col[0]} = $res->first()->{$col[0]};
             }
             return $obj;
         } else {
