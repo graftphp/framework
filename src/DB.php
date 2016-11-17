@@ -6,6 +6,7 @@ class DB
 {
 
     private $cols = '*';
+    private $orderSQL = '';
     private $params = [];
     private $sql = '';
     private $table = '';
@@ -24,11 +25,49 @@ class DB
         }
     }
 
+    public function __call($method, $args) {
+        switch ($method) {
+            case 'orderBy' :
+                return $this->orderBy_func(...$args);
+                break;
+            case 'table' :
+                return $this->table_func(...$args);
+                break;
+            case 'where' :
+                return $this->where_func(...$args);
+                break;
+        }
+        die($method . ' method not found');
+    }
+
+    static public function __callStatic($method, $args) {
+        switch ($method) {
+            case 'orderBy' :
+                $o = new static();
+                return $o->orderBy_func(...$args);
+                break;
+            case 'table' :
+                $o = new static();
+                return $o->table_func(...$args);
+                break;
+            case 'where' :
+                $o = new static();
+                return $o->where_func(...$args);
+                break;
+        }
+        die($method . ' method not found');
+    }
+
     private function columnExists($tablename, $column)
     {
         $this->query = $this->db->prepare("SHOW COLUMNS FROM {$tablename} LIKE :column");
         $this->query->execute(array("column" => $column));
         return $this->query->fetch() ? true : false;
+    }
+
+    public function count()
+    {
+        return count((array)$count);
     }
 
     public function createTable($tablename, $idcolumn)
@@ -37,10 +76,13 @@ class DB
             {$idcolumn} INT NOT NULL AUTO_INCREMENT PRIMARY KEY);");
     }
 
-    public static function delete($table, $column, $val)
+    /*
+    Delete records based on table and query settings
+    */
+    public function delete()
     {
-        $db = new static;
-        $db->execute("DELETE FROM " . $table . " WHERE " . $column . " = " . $val);
+        $this->sql = 'DELETE FROM `' . $this->table . '`' . $this->where;
+        $this->run();
     }
 
     /*
@@ -59,18 +101,7 @@ class DB
         }
     }
 
-    public function first($cols = null, $sortcol = null, $sortdir = null)
-    {
-        $first = $this->get($cols, $sortcol, $sortdir);
-
-        if ($first) {
-            return (object) reset($first);
-        } else {
-            return false;
-        }
-    }
-
-    public function get($cols = null, $sortcol = null, $sortdir = null)
+    public function get($cols = null)
     {
         if (isset($cols)) {
             if (is_array($cols)) {
@@ -81,46 +112,46 @@ class DB
         }
         $this->sql = "SELECT " . $this->cols . "
             FROM `" . $this->table . "`" . $this->where;
+
         $this->run();
 
         if ($this->query->rowCount() > 0) {
             $data = $this->query->fetchAll(\PDO::FETCH_OBJ);
-            if ($sortcol && $sortdir) {
-                uasort($data, function($a, $b) use ($sortcol,$sortdir) {
-                    switch (strtoupper($sortdir)) {
-                        case "DESC": return $a[$sortcol] < $b[$sortcol];
-                        case "ASC" : return $a[$sortcol] > $b[$sortcol];
-                    }
-                });
-            }
-            return (object) $data;
+            return Data::populate((object)$data);
         } else {
-            return false;
+            return new Data;
         }
     }
 
-    public function save($idcol, $cols, $vals)
+    static public function insert($table, $cols, $vals)
     {
-        $sql = '';
-        if (array_search($idcol, $cols) === false) {
-            // no id column, perform insert
-            $sql = 'INSERT';
-        } else {
-            // id column present, perform replace to update the row
-            $sql = 'REPLACE';
-        }
-        $sql .= ' INTO `' . $this->table . '` (`';
+        $sql = 'INSERT INTO `' . $table . '`(`';
         $sql .= implode('`,`', $cols);
         $sql .= '`) VALUES (:';
         $sql .= implode(',:', $cols);
         $sql .= ');';
 
-        $this->execute($sql, $vals);
+        $db = new static;
+        $db->sql = $sql;
+        $db->params = $vals;
+        $db->run();
+    }
+
+    public function orderBy_func($sortcol, $sortdir = null) 
+    {
+        if (empty($this->orderSQL)) {
+            $this->orderSQL = ' ORDER BY ' . $sortcol . ' ';
+        } else {
+            $this->orderSQL .= ', ' . $sortcol . ' ';
+        }
+        $this->orderSQL .= $sortdir == 'DESC' ? 'DESC' : 'ASC';
+
+        return $this;
     }
 
     private function run()
     {
-        $this->query = $this->db->prepare($this->sql);
+        $this->query = $this->db->prepare($this->sql . $this->orderSQL);
         $this->query->execute($this->params);
     }
 
@@ -136,15 +167,29 @@ class DB
         }
     }
 
-    public function table($table)
+    public function table_func($table)
     {
         $this->table = $table;
+
         return $this;
     }
 
-    public function where($column, $operator, $value)
+    public function update($cols, $vals)
     {
-        // TODO: validate operators
+        $sql = '';
+        foreach($cols as $c) {
+            $sql .= strlen($sql) > 0 ? ', ' : '';
+            $sql .= '`' . $c . '` = :' . $c . ' ';
+        }
+        $sql = 'UPDATE `' . $this->table . '` SET ' . $sql . $this->where;
+
+        $this->sql = $sql;
+        $this->params = array_merge($this->params, $vals);
+        $this->run();
+    }
+
+    public function where_func($column, $operator, $value)
+    {
         $this->where .= " AND `$column` $operator :p" . count($this->params);
         $this->params['p'.count($this->params)] = $value;
 

@@ -2,7 +2,7 @@
 
 namespace GraftPHP\Framework;
 
-class Model
+class Model extends DB
 {
 
     static public function all($sortcol = null, $sortdir = null)
@@ -10,8 +10,14 @@ class Model
         $obj = new static;
         $obj->build();
         $db = new DB();
-        return $db->table(static::$db_tablename)
-            ->get('*', $sortcol, $sortdir);
+        $res = $db->table(static::$db_tablename)
+            ->get(['id'], $sortcol, $sortdir);
+
+        $out = new Data();
+        foreach($res as $row) {
+            $out->append( static::find($row->id) );
+        }
+        return $out;
     }
 
     static public function build() {
@@ -36,17 +42,20 @@ class Model
         }
     }
 
+    // delete the current instance of this object
     public function delete()
     {
-        if ($this->{static::$db_idcolumn}) {
-            DB::delete(
-                static::$db_tablename,
-                static::$db_idcolumn,
-                $this->{static::$db_idcolumn}
-            );
-        } else {
-            dd("id not set");
-        }
+        $db = new DB();
+        $db->table(static::$db_tablename)
+            ->where(static::$db_idcolumn, '=', $this->{static::$db_idcolumn})
+            ->delete();
+    }
+
+    // delete a single instance of the object by ID
+    public function destroy($id)
+    {
+        $o = static::find($id, $this->{static::$db_idcolumn});
+        $o->delete();
     }
 
     // find and return a single instance of the object
@@ -56,8 +65,10 @@ class Model
         $db = new DB();
         $res = $db->table(static::$db_tablename)
             ->where($col, '=', $val)
-            ->first();
+            ->get();
+
         if ($res) {
+            $res = reset($res);
             $obj = new static;
             $obj->{static::$db_idcolumn} = $res->{static::$db_idcolumn};
             foreach(static::$db_columns as $col) {
@@ -69,24 +80,11 @@ class Model
         }
     }
 
-    static public function first()
-    {
-        $db = new DB();
-        return $db->table(static::$db_tablename)
-            ->first('*', static::$db_idcolumn, 'DESC');
-    }
-
     public function save()
     {
         $cols = [];
         $vals = [];
-        $db = new DB();
-        $db->table(static::$db_tablename);
 
-        if (isset($this->{static::$db_idcolumn})) {
-            $cols[] = static::$db_idcolumn;
-            $vals[static::$db_idcolumn] = $this->{static::$db_idcolumn};
-        }
         foreach(static::$db_columns as $c) {
             if (isset($this->{$c[0]})) {
                 $cols[] = $c[0];
@@ -94,7 +92,14 @@ class Model
             }
         }
 
-        $db->save(static::$db_idcolumn, $cols, $vals);
+        if (isset($this->{static::$db_idcolumn})) {
+            $db = new DB();
+            $db->table(static::$db_tablename)
+                ->where(static::$db_idcolumn, '=', $this->{static::$db_idcolumn})
+                ->update($cols, $vals);
+        } else {
+            DB::insert(static::$db_tablename, $cols, $vals);
+        }
     }
 
     private function updateTable()
