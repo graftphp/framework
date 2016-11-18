@@ -105,10 +105,7 @@ class Model extends DB
         }
 
         if (isset($this->{static::$db_idcolumn})) {
-            $db = new DB();
-            $db->table(static::$db_tablename)
-                ->where(static::$db_idcolumn, '=', $this->{static::$db_idcolumn})
-                ->update($cols, $vals);
+            DB::replace(static::$db_tablename, $cols, $vals);
         } else {
             DB::insert(static::$db_tablename, $cols, $vals);
         }

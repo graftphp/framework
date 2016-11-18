@@ -122,6 +122,20 @@ class DB
         return $this;
     }
 
+    static public function replace($table, $cols, $vals)
+    {
+        $sql = 'REPLACE INTO `' . $table . '`(`';
+        $sql .= implode('`,`', $cols);
+        $sql .= '`) VALUES (:';
+        $sql .= implode(',:', $cols);
+        $sql .= ');';
+
+        $db = new static;
+        $db->sql = $sql;
+        $db->params = $vals;
+        $db->run();
+    }
+
     private function run()
     {
         $this->query = $this->db->prepare($this->sql . $this->orderSQL);
