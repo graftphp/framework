@@ -104,10 +104,12 @@ class DB
         $sql .= implode(',:', $cols);
         $sql .= ');';
 
-        $db = new static;
-        $db->sql = $sql;
-        $db->params = $vals;
-        $db->run();
+        $self = new static;
+        $self->sql = $sql;
+        $self->params = $vals;
+        $self->run();
+
+        return $self->db->lastInsertId();
     }
 
     public function orderBy_func($sortcol, $sortdir = null)

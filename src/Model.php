@@ -109,7 +109,7 @@ class Model extends DB
             $vals[static::$db_idcolumn] = $this->{static::$db_idcolumn};
             DB::replace(static::$db_tablename, $cols, $vals);
         } else {
-            DB::insert(static::$db_tablename, $cols, $vals);
+            $this->{static::$db_idcolumn} = DB::insert(static::$db_tablename, $cols, $vals);
         }
     }
 
