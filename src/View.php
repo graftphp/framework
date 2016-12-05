@@ -5,7 +5,7 @@ namespace GraftPHP\Framework;
 class View
 {
 
-    public static function render($template, $vars = null, $viewpath = null) 
+    public static function render($template, $vars = null, $viewpath = null)
     {
         if ($vars) {
             extract($vars);
@@ -32,7 +32,7 @@ class View
                 $embed_contents = ob_get_clean();
                 $view_contents = str_replace($embed, $embed_contents, $view_contents);
             }
-        } 
+        }
 
         // check for a template tag, we will only use the first one
         preg_match_all("/\{template:(.*)\}/", $view_contents, $template_tag);
@@ -55,7 +55,7 @@ class View
                     $chunk = substr($view_contents, $startpos, $endpos - $startpos);
                 }
                 $template_contents = str_replace($start, $chunk, $template_contents);
-            }            
+            }
             $view_contents = $template_contents;
         }
 
@@ -64,4 +64,3 @@ class View
     }
 
 }
-

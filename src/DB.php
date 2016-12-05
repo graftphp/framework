@@ -115,9 +115,9 @@ class DB
     public function orderBy_func($sortcol, $sortdir = null)
     {
         if (empty($this->orderSQL)) {
-            $this->orderSQL = ' ORDER BY ' . $sortcol . ' ';
+            $this->orderSQL = ' ORDER BY `' . $sortcol . '` ';
         } else {
-            $this->orderSQL .= ', ' . $sortcol . ' ';
+            $this->orderSQL .= ', `' . $sortcol . '` ';
         }
         $this->orderSQL .= $sortdir == 'DESC' ? 'DESC' : 'ASC';
 
@@ -149,9 +149,9 @@ class DB
         // TODO: remove columns not in the model settings
         foreach ($columns as $column) {
             if ($this->ColumnExists($tablename, $column[0])) {
-                $this->execute("ALTER TABLE {$tablename} CHANGE {$column[0]} {$column[0]} {$column[1]}");
+                $this->execute("ALTER TABLE `{$tablename}` CHANGE `{$column[0]}` `{$column[0]}` {$column[1]}");
             } else {
-                $this->execute("ALTER TABLE {$tablename} ADD {$column[0]} {$column[1]}");
+                $this->execute("ALTER TABLE `{$tablename}` ADD `{$column[0]}` {$column[1]}");
             }
         }
     }
