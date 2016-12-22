@@ -20,7 +20,7 @@ class Functions
         // Trim out extra -'s
         $text = trim($text, '-');
         // Convert letters that we have left to the closest ASCII representation
-        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+        $text = iconv('utf-8', 'us-ascii//TRANSLIT', utf8_encode($text));
         // Make text lowercase
         $text = strtolower($text);
         // Strip out anything we haven't been able to convert
