@@ -5,7 +5,7 @@ namespace GraftPHP\Framework;
 class Model extends DB
 {
 
-    static public function all($sortcol = null, $sortdir = null)
+    public static function all($sortcol = null, $sortdir = null)
     {
         $obj = new static;
         $obj->build();
@@ -14,13 +14,14 @@ class Model extends DB
             ->get([static::$db_idcolumn], $sortcol, $sortdir);
 
         $out = new Data();
-        foreach($res as $row) {
-            $out->append( static::find($row->{static::$db_idcolumn}) );
+        foreach ($res as $row) {
+            $out->append(static::find($row->{static::$db_idcolumn}));
         }
         return $out;
     }
 
-    static public function build() {
+    public static function build()
+    {
         $obj = new static;
         $obj->updateTable();
         $obj->defaultData();
@@ -29,11 +30,11 @@ class Model extends DB
     public function defaultData()
     {
         if (isset(static::$db_defaultdata)) {
-            foreach(static::$db_defaultdata as $k => $d) {
+            foreach (static::$db_defaultdata as $k => $d) {
                 $obj = new static;
                 if (!$obj->find($d[0])) {
                     $obj->{static::$db_idcolumn} = $d[0];
-                    foreach(static::$db_columns as $ci => $c) {
+                    foreach (static::$db_columns as $ci => $c) {
                         $obj->{$c[0]} = $d[$ci+1];
                     }
                     $obj->save();
@@ -43,7 +44,7 @@ class Model extends DB
     }
 
     // delete the current instance of this object
-    public function delete_func($id = null)
+    public function deleteFunc($id = null)
     {
         $db = new DB();
         $db->table(static::$db_tablename)
@@ -59,7 +60,7 @@ class Model extends DB
     }
 
     // find and return a single instance of the object
-    static public function find($val, $column = null)
+    public static function find($val, $column = null)
     {
         $col = $column ? $column : static::$db_idcolumn;
         $db = new DB();
@@ -70,7 +71,7 @@ class Model extends DB
         if ($res->count() > 0) {
             $obj = new static;
             $obj->{static::$db_idcolumn} = $res->first()->{static::$db_idcolumn};
-            foreach(static::$db_columns as $col) {
+            foreach (static::$db_columns as $col) {
                 $obj->{$col[0]} = $res->first()->{$col[0]};
             }
             return $obj;
@@ -86,8 +87,8 @@ class Model extends DB
         }
         $res = parent::get($cols);
         $out = new Data();
-        foreach($res as $row) {
-            $out->append( static::find($row->{static::$db_idcolumn}) );
+        foreach ($res as $row) {
+            $out->append(static::find($row->{static::$db_idcolumn}));
         }
         return $out;
     }
@@ -97,7 +98,7 @@ class Model extends DB
         $cols = [];
         $vals = [];
 
-        foreach(static::$db_columns as $c) {
+        foreach (static::$db_columns as $c) {
             if (isset($this->{$c[0]})) {
                 $cols[] = $c[0];
                 $vals[$c[0]] = $this->{$c[0]};
@@ -123,5 +124,4 @@ class Model extends DB
             }
         }
     }
-
 }

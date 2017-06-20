@@ -2,9 +2,8 @@
 
 namespace GraftPHP\Framework;
 
-Class Data
+class Data
 {
-
     use MagicCall;
 
     public function append($o)
@@ -23,12 +22,11 @@ Class Data
         return reset($this);
     }
 
-    public function populate_func($o)
+    public function populateFunc($o)
     {
         foreach (get_object_vars($o) as $key => $value) {
             $this->$key = $value;
         }
         return $this;
     }
-
 }

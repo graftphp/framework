@@ -2,21 +2,22 @@
 
 namespace GraftPHP\Framework;
 
-trait magicCall {
-
-    public function __call($method, $args) {
-        if (method_exists(get_class(), $method . '_func')) {
-            return $this->{$method . '_func'}(...$args);
+trait MagicCall
+{
+    public function __call($method, $args)
+    {
+        if (method_exists(get_class(), $method . 'Func')) {
+            return $this->{$method . 'Func'}(...$args);
         }
         die($method . ' method not found');
     }
 
-    static public function __callStatic($method, $args) {
-        if (method_exists(get_class(), $method . '_func')) {
+    static public function __callStatic($method, $args)
+    {
+        if (method_exists(get_class(), $method . 'Func')) {
             $o = new static();
-            return $o->{$method . '_func'}(...$args);
+            return $o->{$method . 'Func'}(...$args);
         }
         die($method . ' method not found');
     }
-
 }

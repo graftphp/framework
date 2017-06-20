@@ -4,7 +4,6 @@ namespace GraftPHP\Framework;
 
 class DB
 {
-
     use MagicCall;
 
     private $cols = '*';
@@ -19,9 +18,11 @@ class DB
     {
         // connect to db
         try {
-            $this->db = new \PDO("mysql:host=" . GRAFT_CONFIG['DBHost'] . ";dbname=" . GRAFT_CONFIG['DBName'],
+            $this->db = new \PDO(
+                "mysql:host=" . GRAFT_CONFIG['DBHost'] . ";dbname=" . GRAFT_CONFIG['DBName'],
                 GRAFT_CONFIG['DBUser'],
-                GRAFT_CONFIG['DBPassword']);
+                GRAFT_CONFIG['DBPassword']
+            );
             $this->db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             die($e->getMessage());
@@ -49,7 +50,7 @@ class DB
     /*
     Delete records based on table and query settings
     */
-    public function delete_func()
+    public function deleteFunc()
     {
         if (empty($this->table) || empty($this->where)) {
             dd('Table and Where required for delete');
@@ -96,7 +97,7 @@ class DB
         }
     }
 
-    static public function insert($table, $cols, $vals)
+    public static function insert($table, $cols, $vals)
     {
         $sql = 'INSERT INTO `' . $table . '`(`';
         $sql .= implode('`,`', $cols);
@@ -112,7 +113,7 @@ class DB
         return $self->db->lastInsertId();
     }
 
-    public function orderBy_func($sortcol, $sortdir = null)
+    public function orderByFunc($sortcol, $sortdir = null)
     {
         if (empty($this->orderSQL)) {
             $this->orderSQL = ' ORDER BY `' . $sortcol . '` ';
@@ -124,7 +125,7 @@ class DB
         return $this;
     }
 
-    static public function replace($table, $cols, $vals)
+    public static function replace($table, $cols, $vals)
     {
         $sql = 'REPLACE INTO `' . $table . '`(`';
         $sql .= implode('`,`', $cols);
@@ -156,7 +157,7 @@ class DB
         }
     }
 
-    public function table_func($table)
+    public function tableFunc($table)
     {
         $this->table = $table;
 
@@ -166,7 +167,7 @@ class DB
     public function update($cols, $vals)
     {
         $sql = '';
-        foreach($cols as $c) {
+        foreach ($cols as $c) {
             $sql .= strlen($sql) > 0 ? ', ' : '';
             $sql .= '`' . $c . '` = :' . $c . ' ';
         }
@@ -177,12 +178,11 @@ class DB
         $this->run();
     }
 
-    public function where_func($column, $operator, $value)
+    public function whereFunc($column, $operator, $value)
     {
         $this->where .= " AND `$column` $operator :p" . count($this->params);
         $this->params['p'.count($this->params)] = $value;
 
         return $this;
     }
-
 }

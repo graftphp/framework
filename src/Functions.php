@@ -4,7 +4,6 @@ namespace GraftPHP\Framework;
 
 class Functions
 {
-
     public static function redirect($url)
     {
         header("Location: $url");
@@ -27,5 +26,4 @@ class Functions
         $text = preg_replace('/[^-\w]+/', '', $text);
         return $text;
     }
-
 }
