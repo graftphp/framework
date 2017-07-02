@@ -51,7 +51,7 @@ class View
                 $endpos = strpos($view_contents, $end);
                 $chunk = '';
                 if ($startpos && $endpos) {
-                    $startpos = $startpos+strlen($start)+1;
+                    $startpos = $startpos+strlen($start);
                     $chunk = substr($view_contents, $startpos, $endpos - $startpos);
                 }
                 $template_contents = str_replace($start, $chunk, $template_contents);
