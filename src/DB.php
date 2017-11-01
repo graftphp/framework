@@ -21,7 +21,10 @@ class DB
             $this->db = new \PDO(
                 "mysql:host=" . GRAFT_CONFIG['DBHost'] . ";dbname=" . GRAFT_CONFIG['DBName'],
                 GRAFT_CONFIG['DBUser'],
-                GRAFT_CONFIG['DBPassword']
+                GRAFT_CONFIG['DBPassword'],
+                [
+                    \PDO::MYSQL_ATTR_INIT_COMMAND => "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))",
+                ]
             );
             $this->db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
