@@ -16,7 +16,6 @@ class DB
 
     public function __construct()
     {
-        // connect to db
         try {
             $this->db = new \PDO(
                 "mysql:host=" . GRAFT_CONFIG['DBHost'] . ";dbname=" . GRAFT_CONFIG['DBName'],
@@ -55,9 +54,7 @@ class DB
         $this->run();
     }
 
-    /*
-    Execute a raw SQL query + optional named parameter array
-    */
+    // Execute a raw SQL query + optional named parameter array
     public function execute($sql, $params = false)
     {
         $this->sql = $sql;
@@ -87,7 +84,7 @@ class DB
 
         if ($this->query->rowCount() > 0) {
             $data = $this->query->fetchAll(\PDO::FETCH_OBJ);
-            return Data::populate((object)$data);
+            return Data::populate((object) $data);
         } else {
             return new Data;
         }
@@ -153,6 +150,19 @@ class DB
         }
     }
 
+    public static function tableExists($table)
+    {
+        $db = new static();
+        $db->params = ['table' => $table];
+        $db->sql = "SELECT count(*)
+            FROM information_schema.TABLES
+            WHERE (TABLE_SCHEMA = '" . GRAFT_CONFIG['DBName'] . "')
+                AND (TABLE_NAME = :table)";
+        $db->run();
+
+        return $db->query->fetch()[0] == 0 ? false : true;
+    }
+
     public function tableFunc($table)
     {
         $this->table = $table;
@@ -177,7 +187,7 @@ class DB
     public function whereFunc($column, $operator, $value)
     {
         $this->where .= " AND `$column` $operator :p" . count($this->params);
-        $this->params['p'.count($this->params)] = $value;
+        $this->params['p' . count($this->params)] = $value;
 
         return $this;
     }
