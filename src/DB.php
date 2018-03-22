@@ -39,20 +39,13 @@ class DB
         return $this->query->fetch() ? true : false;
     }
 
-    public function count()
-    {
-        return count((array)$count);
-    }
-
     public function createTable($tablename, $idcolumn)
     {
         $this->execute("CREATE TABLE IF NOT EXISTS {$tablename} (
             {$idcolumn} INT NOT NULL AUTO_INCREMENT PRIMARY KEY);");
     }
 
-    /*
-    Delete records based on table and query settings
-    */
+    // Delete records based on table and query settings
     public function deleteFunc()
     {
         if (empty($this->table) || empty($this->where)) {
