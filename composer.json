@@ -5,6 +5,9 @@
     "homepage": "https://github.com/graftphp/framework",
     "type": "library",
     "autoload": {
+        "files": [
+            "src/Util/helpers.php"
+        ],
         "psr-4": {
             "GraftPHP\\Framework\\": "src/"
         }
