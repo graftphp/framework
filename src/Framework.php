@@ -8,6 +8,13 @@ class Framework
 {
     public static function route()
     {
+        // CSRF protection
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (!csrf_verify()) {
+                dd('CSRF Token Mismatch');
+            }
+        }
+
         // work out which controller and method to send this request to
         $path = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : explode('?', $_SERVER['REQUEST_URI'])[0];
 
