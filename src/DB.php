@@ -9,8 +9,8 @@ class DB
     private $cols = '*';
     private $orderSQL = '';
     private $params = [];
-    private $sql = '';
-    private $where = ' WHERE 1 ';
+    protected $sql = '';
+    protected $where = ' WHERE 1 ';
 
     protected $table = '';
 
@@ -132,9 +132,10 @@ class DB
         $db->run();
     }
 
-    private function run()
+    protected function run()
     {
         $this->query = $this->db->prepare($this->sql . $this->orderSQL);
+
         $this->query->execute($this->params);
     }
 
