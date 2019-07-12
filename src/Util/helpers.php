@@ -23,6 +23,10 @@ function csrf_token()
 
 function csrf_verify()
 {
+    if (defined('CSRF_BYPASS') && in_array($_SERVER['REQUEST_URI'], CSRF_BYPASS)) {
+        return true;
+    }
+    
     if (isset($_POST['_token'])) {
         foreach ($_SESSION['tokens'] as $_token) {
             if (hash_equals($_token, $_POST['_token'])) {
