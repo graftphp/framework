@@ -16,9 +16,19 @@ class DB
 
     public function __construct()
     {
+        if (
+            (!isset(GRAFT_CONFIG['DBHost']) || empty(GRAFT_CONFIG['DBHost'])) ||
+            (!isset(GRAFT_CONFIG['DBName']) || empty(GRAFT_CONFIG['DBName'])) ||
+            (!isset(GRAFT_CONFIG['DBUser']) || empty(GRAFT_CONFIG['DBUser'])) ||
+            (!isset(GRAFT_CONFIG['DBPassword']) || empty(GRAFT_CONFIG['DBPassword'])) ||
+            (!isset(GRAFT_CONFIG['DBPort']) || empty(GRAFT_CONFIG['DBPort']))
+        ) {
+            die('Database settings are not complete');
+        }
+
         try {
             $this->db = new \PDO(
-                "mysql:host=" . GRAFT_CONFIG['DBHost'] . ";dbname=" . GRAFT_CONFIG['DBName'],
+                "mysql:host=" . GRAFT_CONFIG['DBHost'] . ";dbname=" . GRAFT_CONFIG['DBName'] . ";port=" . GRAFT_CONFIG['DBPort'],
                 GRAFT_CONFIG['DBUser'],
                 GRAFT_CONFIG['DBPassword'],
                 [
